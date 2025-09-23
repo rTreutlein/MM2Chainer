@@ -31,6 +31,18 @@ def generate_expressions():
         if result in values:
             results.append(f"(sqrt ({a}) {result})")
     
+    # Add < relations (binary predicate, only when true)
+    for a in values:
+        for b in values:
+            if a < b:
+                results.append(f"(< ({a} {b}) 1.0)")
+    
+    # Add <= relations (binary predicate, only when true)
+    for a in values:
+        for b in values:
+            if a <= b:
+                results.append(f"((<= ({a} {b}) 1.0)")
+    
     # Write to file
     with open('mathrels.mm2', 'w') as f:
         for expr in results:
