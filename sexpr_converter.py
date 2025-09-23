@@ -46,25 +46,9 @@ def format_sexpr(sexpr):
         inner = ' '.join(children)
         return f'[{len(sexpr[1])}] {inner}'
 
-def main():
-    input_str = sys.stdin.read().strip()
-    if not input_str:
-        print("No input provided", file=sys.stderr)
-        sys.exit(1)
-    
-    try:
-        sexpr, final_pos = parse_sexpr(input_str, 0)
-        # Check for trailing garbage
-        while final_pos < len(input_str) and input_str[final_pos].isspace():
-            final_pos += 1
-        if final_pos < len(input_str):
-            raise ValueError("Extra characters after S-expression")
-        
-        output = format_sexpr(sexpr)
-        print(output)
-    except ValueError as e:
-        print(f"Error parsing S-expression: {e}", file=sys.stderr)
-        sys.exit(1)
+def convert_sexpr(sexpr):
+    parsed , pos = parse_sexpr(sexpr, 0)
+    return format_sexpr(parsed)
 
 if __name__ == '__main__':
-    main()
+    print(convert_sexpr("(: $prf F $tv)"))
