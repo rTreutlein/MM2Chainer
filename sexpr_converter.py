@@ -88,3 +88,4 @@ if __name__ == '__main__':
     print(convert_sexpr(test_input, True))
     print(convert_sexpr(test_input, False))
     print(convert_sexpr("(: $prf F $tv)", True))
+    print(convert_sexpr("(: $prf F $tv)", False))

@@ -1,0 +1,41 @@
+;Chainer
+((step (0 base))
+  (, (goal $g) (kb $g))
+  (, (ev $g) )) 
+
+((step (1 cpu))
+  (, (goal (CPU $fun $args $res)) (fun ($fun $args $body $res)))
+  (, (exec 0 $body (, (ev (CPU $fun $args $res)) ) ) ) )
+
+((step (1 cpu))
+  (, (goal (CPU $fun $args $res)) ($fun $args $res))
+  (, (ev (CPU $fun $args $res)) ) )
+
+((step (2 abs1))
+  (, (goal $ccls) (kb (($arg $dep) |- $ccls)) )
+  (, (ev (($arg $dep) |- $ccls)) (goal $arg) ))
+
+((step (3 app1_1))
+  (, (ev (($arg1 ($deparg1 $dep)) |- $r)) (ev $arg1))
+  (, (ev (($deparg1 $dep) |- $r)) (goal $deparg1) ))
+
+((step (3 app1_0))
+  (, (ev (($arg Empty) |- $r)) (ev $arg))
+  (, (ev $r) ))
+
+;((step (4 revision))
+; (, (ev (: $prf1 $Type $tv1)) (ev (: $prf2 $Type $tv2)))
+; (O (- (ev (: $prf1 $Type $tv1))) (- (ev (: $prf2 $Type $tv2))) (+ (ev (: (revision $prf1 $prf2) $Type (merge $tv1 $tv2))))  ))
+;
+;((step (5 clean))
+; (, (ev (: (revision $prf $prf) $Type $tv)))
+; (O (- (ev (: (revision $prf $prf) $Type $tv)))))
+
+(exec zealous
+        (, ((step $x) $p0 $t0)
+           (exec zealous $p1 $t1) )
+        (, (exec $x $p0 $t0)
+           (exec zealous $p1 $t1) ))
+
+;Functions
+(fun (mp-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (min ($ci $ca) $cb)) (STV $sb $cb)))
