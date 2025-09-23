@@ -1,10 +1,12 @@
+import math
+
 def generate_expressions():
     # Define the range of values: 0, 0.1, 0.2, ..., 1.0
     values = [round(i * 0.1, 1) for i in range(11)]
-    functions = ['mul', 'div', 'min', 'max']
+    binary_functions = ['mul', 'div', 'min', 'max']
     results = []
     
-    for func in functions:
+    for func in binary_functions:
         for a in values:
             for b in values:
                 if func == 'mul':
@@ -22,6 +24,12 @@ def generate_expressions():
                 # Only include results that are in the valid range
                 if result in values:
                     results.append(f"({func} ({a} {b}) {result})")
+    
+    # Add sqrt expressions (unary)
+    for a in values:
+        result = round(math.sqrt(a), 1)
+        if result in values:
+            results.append(f"(sqrt ({a}) {result})")
     
     # Write to file
     with open('mathrels.mm2', 'w') as f:
