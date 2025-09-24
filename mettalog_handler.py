@@ -7,7 +7,6 @@ import selectors
 import re
 import time
 import sys
-from order import parse_sexpr, print_sexpr, build_structure
 from typing import List, Tuple
 
 class TimeoutError(RuntimeError):
@@ -198,17 +197,3 @@ class MettalogHandler:
     def run(self, command: str) -> List[str]:
         out = self._send_command(command)
         return [item.strip() for item in out[1:-1].split(',') if item.strip()]
-
-if __name__ == '__main__':
-    handler = MettalogHandler()
-
-    out = handler._send_command("!(mcompile (: rule (Implication (And (A $a) (B $b)) (R $a $b)) (STV 1.0 1.0)))")
-    outlst =  [item.strip() for item in out[1:-1].split(',') if item.strip()]
-
-    for elem in outlst:
-        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        print(elem)
-        pyexpr = parse_sexpr(elem)[0]
-        structure = build_structure(pyexpr[0])
-        pyexpr[0] = structure
-        print(print_sexpr(pyexpr))
