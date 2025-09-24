@@ -21,7 +21,6 @@ class MorkHandler:
 
     def add_atom(self, atom: str, log:bool=False, timeout: float = 240) -> str:
         atoms = self.handler.run(f"!(mm2compile {atom})")
-        #write each atom to a file
         with open("data.mm2", "a") as f:
             for a in atoms:
                 f.write(a)
@@ -38,11 +37,14 @@ class MorkHandler:
         Returns:
             Tuple of (results_list, proven_boolean)
         """
+        atoms = self.handler.run(f"!(mm2compileQuery {atom})")
+        print(atoms)
         with open(f"data.mm2", "a") as f:
-            f.write(f"(goal {atom})")
-            f.write("\n")
+            for a in atoms:
+                f.write(a)
+                f.write("\n")
 
-        os.system(f"mork run --steps 100 chainer.mm2 mathrels.mm2 data.mm2 -o out.mm2 -p \"[2] ev {convert_sexpr(atom,True)}\" -t \"{convert_sexpr(atom,False)}\"")
+        os.system(f"mork run --steps 150 chainer.mm2 mathrels.mm2 data.mm2 -o out.mm2 -p \"{convert_sexpr(atoms[0],True).replace("goal","ev")}\" -t \"{convert_sexpr(atoms[0],False).replace("goal","ev")}\"")
 
         with open("out.mm2", "r") as f:
             results = f.read().splitlines()
@@ -52,12 +54,6 @@ if __name__ == '__main__':
     handler = MorkHandler()
 
     handler.add_atom("(: fact1 A (STV 1.0 1.0))")
-    handler.add_atom("(: rule1 (Implication A B) (STV 1.0 1.0))")
-    handler.add_atom("(: rule2 (Implication B C) (STV 1.0 1.0))")
-    handler.add_atom("(: rule3 (Implication C D) (STV 1.0 1.0))")
-    handler.add_atom("(: rule4 (Implication D E) (STV 1.0 1.0))")
-    handler.add_atom("(: rule5 (Implication E F) (STV 1.0 1.0))")
-    handler.add_atom("(: rule6 (Implication B F) (STV 1.0 1.0))")
-    handler.add_atom("(: rule7 (Implication D F) (STV 1.0 1.0))")
+    handler.add_atom("(: rule1 (Implication (And A B) C) (STV 1.0 1.0))")
 
-    print(handler.query(("(: $prf F $tv)")))
+    print(handler.query(("(: $prf (Implication B C) $tv)")))
