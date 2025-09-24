@@ -1,33 +1,57 @@
 ;Chainer
 ((step (0 base))
-  (, (goal $g) (kb $g))
-  (, (ev $g) )) 
+  (, (goal $ctx $g) (kb $g))
+  (, (ev $ctx $g) )) 
 
 ((step (1 cpu))
-  (, (goal (CPU $fun $args $res)) (fun ($fun $args $body $res)))
-  (, (exec 0 $body (, (ev (CPU $fun $args $res)) ) ) ) )
+  (, (goal $ctx (CPU $fun $args $res)) (fun ($fun $args $body $res)))
+  (, (exec 0 $body (, (ev $ctx (CPU $fun $args $res)) ) ) ) )
 
 ((step (1 cpu))
-  (, (goal (CPU $fun $args $res)) ($fun $args $res))
-  (, (ev (CPU $fun $args $res)) ) )
+  (, (goal $ctx (CPU $fun $args $res)) ($fun $args $res))
+  (, (ev $ctx (CPU $fun $args $res)) ) )
 
 ((step (2 abs1))
-  (, (goal $ccls) (kb (($arg $dep) |- $ccls)) )
-  (, (ev (($arg $dep) |- $ccls)) (goal $arg) ))
+  (, (goal $ctx $ccls) (kb (($arg $dep) |- $ccls)) )
+  (, (ev $ctx (($arg $dep) |- $ccls)) (goal $ctx $arg) ))
 
-((step (3 app1_1))
-  (, (ev (($arg1 ($deparg1 $dep)) |- $r)) (ev $arg1))
-  (, (ev (($deparg1 $dep) |- $r)) (goal $deparg1) ))
+((step (3 ctx))
+  (, (goal ($g) $g) )
+  (, (ev ($g) $g) ))
 
-((step (3 app1_0))
-  (, (ev (($arg Empty) |- $r)) (ev $arg))
-  (, (ev $r) ))
+((step (3 ctx))
+  (, (goal ($arg $g) $g) )
+  (, (ev ($arg $g) $g) ))
 
-;((step (4 revision))
+((step (3 ctx))
+  (, (goal ($g $arg) $g) )
+  (, (ev ($g $arg) $g) ))
+
+((step (3 ctx))
+  (, (goal ($arg1 $arg2 $g) $g) )
+  (, (ev ($arg1 $arg2 $g) $g) ))
+
+((step (3 ctx))
+  (, (goal ($g $arg1 $arg2) $g) )
+  (, (ev ($g $arg1 $arg2) $g) ))
+
+((step (3 ctx))
+  (, (goal ($arg1 $g $arg2) $g) )
+  (, (ev ($arg1 $g $arg2) $g) ))
+
+((step (4 app1_0))
+  (, (ev $ctx (($arg Empty) |- $r)) (ev $ctx $arg))
+  (, (ev $ctx $r) ))
+
+((step (5 app1_1))
+  (, (ev $ctx (($arg1 ($deparg1 $dep)) |- $r)) (ev $ctx $arg1))
+  (, (ev $ctx (($deparg1 $dep) |- $r)) (goal $ctx $deparg1) ))
+
+;((step (6 revision))
 ; (, (ev (: $prf1 $Type $tv1)) (ev (: $prf2 $Type $tv2)))
 ; (O (- (ev (: $prf1 $Type $tv1))) (- (ev (: $prf2 $Type $tv2))) (+ (ev (: (revision $prf1 $prf2) $Type (merge $tv1 $tv2))))  ))
 ;
-;((step (5 clean))
+;((step (7 clean))
 ; (, (ev (: (revision $prf $prf) $Type $tv)))
 ; (O (- (ev (: (revision $prf $prf) $Type $tv)))))
 
@@ -39,3 +63,5 @@
 
 ;Functions
 (fun (mp-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (min ($ci $ca) $cb)) (STV $sb $cb)))
+(fun (and-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (min ($ci $ca) $cb)) (STV $sb $cb)))
+(fun (or-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (max ($ci $ca) $cb)) (STV $sb $cb)))

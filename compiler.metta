@@ -99,6 +99,7 @@
       ($npremises |- $conclusions))))))
 
 
+(= (postQuery Empty) Empty)
 (= (postQuery ($premises |- $conclusions))
   (let $npremises (updatePremises $premises)
   (case $conclusions
@@ -192,8 +193,19 @@
    ($head (fun $tail))
    Empty))
 
+
 (= (mm2compile $stmt)
- (case (mcompile $stmt)
+  (mm2stmt (mcompile $stmt)))
+
+(= (mm2stmt $stmt)
+ (case $stmt
    ( ((() |- ($ccl)) (kb $ccl))
      (($prms |- ($ccl)) (kb ((fun $prms) |- $ccl)))
    )))
+
+(= (mm2compileQuery $stmt)
+   (case (compileQuery $stmt)
+    ( ( ( (() |- ($ccl)) $adds) (let $tail (map-atom $adds $elem (mm2stmt $elem)) (let $lst (cons-atom (goal Nil $ccl) $tail) (superpose $lst))))
+      ( ( ($prms |- ($ccl)) $adds) (let $tail (map-atom $adds $elem (mm2stmt $elem)) (let $lst (cons-atom (goal $prms $ccl) $tail) (superpose $lst))))
+    )
+   ))
