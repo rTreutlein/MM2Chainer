@@ -53,16 +53,17 @@
 (= (in_fold ($formula $premises (: $cclprf $ccltype $ccltv))
             (: $prfelem $elem $tve))
    (let (($NN1 $NN2 $NN3 $tv) $NNr) (decons $premises)
-        ((union $premises ((: $prfelem $elem $tve) (CPU $formula ($tv $tve) $ntv)))
+        ($formula
+         (traceid (concat ((CPU $formula ($tv $tve) $ntv) (: $prfelem $elem $tve)) $premises))
          (: (cons $prfelem $cclprf) (cons $elem $ccltype) $ntv))))
 
 (= (inTemplate $formula $head $tail)
  (let* (($prms (map-flat $tail in_map))
         (((: $fstprf $fstelem $fsttv) $rst) (decons $prms))
-        (($resNNprms (: $cclprf $ccltype $ccltv)) (fold-flat $rst ($formula ((: $fstprf $fstelem $fsttv)) (: ($fstprf) ($fstelem) $fsttv)) in_fold))
+        (($formula $resNNprms (: $cclprf $ccltype $ccltv)) (fold-flat $rst ($formula ((: $fstprf $fstelem $fsttv)) (: ($fstprf) ($fstelem) $fsttv)) in_fold))
         (($rcclprf $rccltype) ((reverse $cclprf) (reverse $ccltype)))
        )
-     ($resNNprms |- ((: (cons conjunction $rcclprf) (cons $head $rccltype) $ccltv)))))
+     ((reverse $resNNprms) |- ((: (cons conjunction $rcclprf) (cons $head $rccltype) $ccltv)))))
 
 (= (in (: $prf $type $tv))
    (let ($head $tail) (decons $type)
@@ -94,7 +95,7 @@
   (case $conclusions
     ((((: $prf ($relation $a $b) $tv))
        (if (== $relation Implication)
-         (superpose ( (post ((union == $npremises ((: $prfa $a $atv) (CPU mp-formula ($atv $tv) $btv))) |- ((: ($prf $prfa) $b $btv))))
+         (superpose ( (post ((concat $npremises ((: $prfa $a $atv) (CPU mp-formula ($atv $tv) $btv))) |- ((: ($prf $prfa) $b $btv))))
                       (out $b)
                       (in $a)
                     ))
@@ -151,7 +152,7 @@
   (case $conclusions
     ((((: $prf ($relation $a $b) $tv))
        (if (and (not (is-var $relation)) (== $relation Implication))
-         (superpose ( (post ((union $npremises ((: $prfa $a $atv) (CPU mp-formula ($atv $tv) $btv))) |- ((: ($prf $prfa) $b $btv))))
+         (superpose ( (post ((concat $npremises ((: $prfa $a $atv) (CPU mp-formula ($atv $tv) $btv))) |- ((: ($prf $prfa) $b $btv))))
                       (in $b)
                       (out $a)
                     ))
@@ -165,10 +166,12 @@
      ($conclusions
       ($npremises |- $conclusions))))))
 
+(= (id $a) $a)
+
 (= (compileQuery $stmt)
- (let (: $prf $Type $tv) $stmt
+ (let (: $prf $Type $tv) (traceid $stmt)
   (if (is-var $Type)
-   ( (() |- ((: $prf $Type $tv))) ())
+   (id ( (() |- ((: $prf $Type $tv))) ()))
    (if (= $Type ($relation $a $b))
     (if (== $relation Implication)
      ((postQuery (((: $prfa $a (STV 1.0 1.0))) |- ((: $prfb $b $itv))))
@@ -200,3 +203,5 @@
       ( ( ($prms |- ($ccl)) $adds) (let $tail (map-flat $adds mm2stmt) (let $lst (cons (goal $prms $ccl) $tail) (superpose $lst))))
     )
    ))
+
+!(compileQuery (: prf (And A B C) (STV 0.9 0.9)))
