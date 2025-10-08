@@ -40,7 +40,7 @@
   (, (ev ($arg1 $g $arg2) $g) ))
 
 ((step (4 app1_0))
-  (, (ev $ctx (($arg Empty) |- $r)) (ev $ctx $arg))
+  (, (ev $ctx (($arg Nil) |- $r)) (ev $ctx $arg))
   (, (ev $ctx $r) ))
 
 ((step (5 app1_1))

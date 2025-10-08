@@ -1,0 +1,14 @@
+(kb (: ⟨t⟩ ⟨term⟩))                      ;; Constant t
+(kb (: ⟨0⟩ ⟨term⟩))                      ;; Constant 0
+
+;; Type constructors (used to build wffs and terms)
+(kb (((: $x ⟨term⟩) ((: $y ⟨term⟩) Empty)) |- (: (⟨+⟩ $x $y) ⟨term⟩)))
+(kb (((: $x ⟨term⟩) ((: $y ⟨term⟩) Empty)) |- (: (⟨=⟩ $x $y) ⟨wff⟩)))
+
+(kb (((: $P ⟨wff⟩) ((: $Q ⟨wff⟩) Empty)) |- (: (⟨->⟩ $P $Q) ⟨wff⟩)))
+
+;; Axioms
+(kb (((: $a ⟨term⟩) Empty) |- (: (⟨=⟩ (⟨+⟩ $a ⟨0⟩) $a) ⟨|-⟩)))  ;; a + 0 = a
+(kb (((: (⟨=⟩ $t $r) ⟨wff⟩) ((: (⟨=⟩ $r $s) ⟨wff⟩) Empty)) |- (: (⟨=⟩ $r $s) ⟨|-⟩)))
+
+(goal Nil (: (⟨=⟩ ⟨t⟩ ⟨t⟩) ⟨|-⟩))
