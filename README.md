@@ -1,29 +1,34 @@
+# Mork Chainer Installation Guide
 
-[Install]
+## PeTTa Installation
 
-[Petta](https://github.com/patham9/PeTTa)
+### Step 1: Clone the PeTTa Repository
+Clone the PeTTa repository from GitHub:
 
+```bash
 git clone https://github.com/patham9/PeTTa
+```
 
-uv
+### Step 2: Set Up with `uv`
+1. Update the `pyproject.toml` file to point to the cloned PeTTa repository:
 
-update pyproject.toml 
+   ```toml
+   [tool.uv.sources]
+   petta = { path = "../PeTTa", editable = true }
+   ```
 
-[tool.uv.sources]
-petta = { path = "../PeTTa" , editable = true }
+2. Sync the dependencies using `uv`:
 
-to point to the cloned repo above
-then 
+   ```bash
+   uv sync
+   ```
 
-uv sync
+### Alternative: Install with `pip`
+Alternatively, you can install PeTTa in editable mode using `pip`:
 
-or 
-
+```bash
 pip install -e path/to/PeTTa
+```
 
-[Mork](https://github.com/trueagi-io/MORK/tree/main)
-
-Install Mork https://github.com/trueagi-io/MORK/tree/main
-
-
-
+## Mork Installation
+To install Mork, follow the instructions in the [Mork repository](https://github.com/trueagi-io/MORK/tree/main).
