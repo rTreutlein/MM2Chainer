@@ -166,12 +166,10 @@
      ($conclusions
       ($npremises |- $conclusions))))))
 
-(= (id $a) $a)
-
 (= (compileQuery $stmt)
  (let (: $prf $Type $tv) (traceid $stmt)
   (if (is-var $Type)
-   (id ( (() |- ((: $prf $Type $tv))) ()))
+   ( (() |- ((: $prf $Type $tv))) ())
    (if (= $Type ($relation $a $b))
     (if (== $relation Implication)
      ((postQuery (((: $prfa $a (STV 1.0 1.0))) |- ((: $prfb $b $itv))))
