@@ -1,51 +1,55 @@
 ;Chainer
 ((step (0 base))
-  (, (goal $ctx $g) (kb $g))
-  (, (ev $ctx $g) )) 
+  (, (goal $kb $ctx $g) ($kb $g))
+  (, (ev $kb $ctx $g) )) 
 
 ((step (1 cpu))
-  (, (goal $ctx (CPU $fun $args $res)) (fun ($fun $args $body $res)))
-  (, (exec 0 $body (, (ev $ctx (CPU $fun $args $res)) ) ) ) )
+  (, (goal $kb $ctx (CPU $fun $args $res)) (fun ($fun $args $body $res)))
+  (, (exec 0 $body (, (ev $kb $ctx (CPU $fun $args $res)) ) ) ) )
 
 ((step (1 cpu))
-  (, (goal $ctx (CPU $fun $args $res)) ($fun $args $res))
-  (, (ev $ctx (CPU $fun $args $res)) ) )
+  (, (goal $kb $ctx (CPU $fun $args $res)) ($fun $args $res))
+  (, (ev $kb $ctx (CPU $fun $args $res)) ) )
 
 ((step (2 abs1))
-  (, (goal $ctx $ccls) (kb (($arg $dep) |- $ccls)) )
-  (, (ev $ctx (($arg $dep) |- $ccls)) (goal $ctx $arg) ))
+  (, (goal $kb $ctx $ccls) ($kb (($arg $dep) |- $ccls)) )
+  (, (ev $kb $ctx (($arg $dep) |- $ccls)) (goal $kb $ctx $arg) ))
 
 ((step (3 ctx))
-  (, (goal ($g) $g) )
-  (, (ev ($g) $g) ))
+  (, (goal $kb ($g) $g) )
+  (, (ev $kb ($g) $g) ))
 
 ((step (3 ctx))
-  (, (goal ($arg $g) $g) )
-  (, (ev ($arg $g) $g) ))
+  (, (goal $kb ($arg $g) $g) )
+  (, (ev $kb ($arg $g) $g) ))
 
 ((step (3 ctx))
-  (, (goal ($g $arg) $g) )
-  (, (ev ($g $arg) $g) ))
+  (, (goal $kb ($g $arg) $g) )
+  (, (ev $kb ($g $arg) $g) ))
 
 ((step (3 ctx))
-  (, (goal ($arg1 $arg2 $g) $g) )
-  (, (ev ($arg1 $arg2 $g) $g) ))
+  (, (goal $kb ($arg1 $arg2 $g) $g) )
+  (, (ev $kb ($arg1 $arg2 $g) $g) ))
 
 ((step (3 ctx))
-  (, (goal ($g $arg1 $arg2) $g) )
-  (, (ev ($g $arg1 $arg2) $g) ))
+  (, (goal $kb ($g $arg1 $arg2) $g) )
+  (, (ev $kb ($g $arg1 $arg2) $g) ))
 
 ((step (3 ctx))
-  (, (goal ($arg1 $g $arg2) $g) )
-  (, (ev ($arg1 $g $arg2) $g) ))
+  (, (goal $kb ($arg1 $g $arg2) $g) )
+  (, (ev $kb ($arg1 $g $arg2) $g) ))
 
 ((step (4 app1_0))
-  (, (ev $ctx (($arg Nil) |- $r)) (ev $ctx $arg))
-  (, (ev $ctx $r) ))
+  (, (ev $kb $ctx (($arg Nil) |- $r)) (ev $kb $ctx $arg))
+  (, (ev $kb $ctx $r) ))
 
 ((step (5 app1_1))
-  (, (ev $ctx (($arg1 ($deparg1 $dep)) |- $r)) (ev $ctx $arg1))
-  (, (ev $ctx (($deparg1 $dep) |- $r)) (goal $ctx $deparg1) ))
+  (, (ev $kb $ctx (($arg1 ($deparg1 $dep)) |- $r)) (ev $kb $ctx $arg1))
+  (, (ev $kb $ctx (($deparg1 $dep) |- $r)) (goal $kb $ctx $deparg1) ))
+
+((step (6 finish))
+    (, (ev $kb $ctx $ev) (pgoal $kb $ctx $ev) (exec $a $b $c))
+    (O (- (exec $a $b $c))))
 
 ;((step (6 revision))
 ; (, (ev (: $prf1 $Type $tv1)) (ev (: $prf2 $Type $tv2)))
@@ -60,6 +64,7 @@
            (exec zealous $p1 $t1) )
         (, (exec $x $p0 $t0)
            (exec zealous $p1 $t1) ))
+
 
 ;Functions
 (fun (mp-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (min ($ci $ca) $cb)) (STV $sb $cb)))

@@ -2,20 +2,39 @@ import os
 import subprocess
 import time
 import uuid
+import threading
 from typing import List, Tuple
 from helpers.sexpr_converter import convert_sexpr
 
 from petta import PeTTa                                                                                                                                                                
+import logging
+
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
+LOADEDLIB = False
+LOADED_LOCK = threading.Lock()
 
 class MorkHandler:                                                          
     def __init__(self):
+        global LOADEDLIB
         self.handler = PeTTa()
+        
+        self.kb = "kb" + uuid.uuid4().hex
 
-        self.handler.load_metta_file("compile.metta")
+        if not LOADEDLIB:
+            with LOADED_LOCK:
+                if not LOADEDLIB:
+                    src_path = os.path.join(os.path.dirname(__file__),"compile.metta")
+                    print(src_path)
+                    self.handler.load_metta_file(src_path)
+                    LOADEDLIB = True
 
-        uid = uuid.uuid4().hex
-        self.data_file = f"data_{uid}.mm2"
-        self.out_file = f"out_{uid}.mm2"
+        self.data_file = f"data_{self.kb}.mm2"
+        self.out_file = f"out_{self.kb}.mm2"
         with open(self.data_file, "w") as f:
             f.write("")
 
@@ -26,7 +45,7 @@ class MorkHandler:
             os.remove(self.out_file)
 
     def add_atom(self, atom: str, log:bool=False, timeout: float = 240) -> str:
-        atoms = self.handler.process_metta_string(f"!(mm2compile {atom})")
+        atoms = self.handler.process_metta_string(f"!(mm2compile {self.kb} {atom})")
         with open(self.data_file, "a") as f:
             for a in atoms:
                 f.write(a)
@@ -44,21 +63,29 @@ class MorkHandler:
         Returns:
             Tuple of (results_list, proven_boolean)
         """
-        atoms = self.handler.process_metta_string(f"!(mm2compileQuery {atom})")
+        atoms = self.handler.process_metta_string(f"!(mm2compileQuery {self.kb} {atom})")
         with open(self.data_file, "a") as f:
             for a in atoms:
                 f.write(a)
                 f.write("\n")
+            f.write(a.replace("goal", "pgoal"))
 
         p_arg = convert_sexpr(atoms[0], True).replace("goal", "ev")
         t_arg = convert_sexpr(atoms[0], False).replace("goal", "ev")
+        chainer_file = os.path.join(os.path.dirname(__file__), "mm2" , "chainer.mm2")
+        mathrels_file = os.path.join(os.path.dirname(__file__), "mm2" , "mathrels.mm2")
         cmd = [
-            "mork", "run", "--steps", "300",
-            "mm2/chainer.mm2", "mm2/mathrels.mm2", self.data_file,
+            "mork", "run",
+            #"--steps", "3000",
+            chainer_file, mathrels_file, self.data_file,
             "-o", self.out_file,
             "-p", p_arg,
-            "-t", t_arg
+            "-t", t_arg,
+            "--timeout", "10"
         ]
+        if log:
+            print(atoms)
+            print(cmd)
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
             raise RuntimeError(f"mork run failed with return code {result.returncode}: {result.stderr}")
@@ -71,8 +98,9 @@ if __name__ == '__main__':
     handler = MorkHandler()
 
     print("Test")
-
-    print(handler.add_atom("(: fact1 A (STV 1.0 1.0))"))
-    print(handler.add_atom("(: rule1 (Implication A C) (STV 1.0 1.0))"))
+    print(handler.add_atom("(: a A (STV 1.0 1.0))"))
+    print(handler.add_atom("(: a_b (Implication A B) (STV 1.0 1.0))"))
+    print(handler.add_atom("(: b_a (Implication B A) (STV 1.0 1.0))"))
+    print(handler.add_atom("(: b_a (Implication (And B X) C) (STV 1.0 1.0))"))
 
     print(handler.query("(: $prf C $tv)"))

@@ -20,7 +20,7 @@
       (cons ($head $idx) $ntail))))
 (= (addidx () $idx) ())
 
-!(test (addidx (a b c) 0) ((a 0) (b 1) (c 2)))
+;!(test (addidx (a b c) 0) ((a 0) (b 1) (c 2)))
 
 (= (out_and_ff $type ($elem $idx))
    (((: $prf $type (STV $tvs $tvc)) (CPU sqrt ($tvs) $ntvs)) |- ((: (proj $idx $prf) $elem (STV $ntvs $tvc)))))
@@ -54,7 +54,7 @@
             (: $prfelem $elem $tve))
    (let (($NN1 $NN2 $NN3 $tv) $NNr) (decons $premises)
         ($formula
-         (traceid (concat ((CPU $formula ($tv $tve) $ntv) (: $prfelem $elem $tve)) $premises))
+         (concat ((CPU $formula ($tv $tve) $ntv) (: $prfelem $elem $tve)) $premises)
          (: (cons $prfelem $cclprf) (cons $elem $ccltype) $ntv))))
 
 (= (inTemplate $formula $head $tail)
@@ -167,7 +167,7 @@
       ($npremises |- $conclusions))))))
 
 (= (compileQuery $stmt)
- (let (: $prf $Type $tv) (traceid $stmt)
+ (let (: $prf $Type $tv) $stmt
   (if (is-var $Type)
    ( (() |- ((: $prf $Type $tv))) ())
    (if (= $Type ($relation $a $b))
@@ -186,20 +186,18 @@
  (let ($head $tail) (decons $stmt)
    ($head (nested $tail))))
 
-(= (mm2compile $stmt)
-  (mm2stmt (compile $stmt)))
+(= (mm2compile $kb $stmt)
+  (mm2stmt $kb (compile $stmt)))
 
-(= (mm2stmt $stmt)
+(= (mm2stmt $kb $stmt)
  (case $stmt
-   ( ((() |- ($ccl)) (kb $ccl))
-     (($prms |- ($ccl)) (kb ((nested $prms) |- $ccl)))
+   ( ((() |- ($ccl)) ($kb $ccl))
+     (($prms |- ($ccl)) ($kb ((nested $prms) |- $ccl)))
    )))
 
-(= (mm2compileQuery $stmt)
+(= (mm2compileQuery $kb $stmt)
    (case (compileQuery $stmt)
-    ( ( ( (() |- ($ccl)) $adds) (let $tail (map-flat $adds mm2stmt) (let $lst (cons (goal Nil $ccl) $tail) (superpose $lst))))
-      ( ( ($prms |- ($ccl)) $adds) (let $tail (map-flat $adds mm2stmt) (let $lst (cons (goal $prms $ccl) $tail) (superpose $lst))))
+    ( ( ( (() |- ($ccl)) $adds) (let $tail (collapse (mm2stmt $kb (superpose $adds))) (let $lst (cons (goal $kb Nil $ccl) $tail) (superpose $lst))))
+      ( ( ($prms |- ($ccl)) $adds) (let $tail (collapse (mm2stmt $kb (superpose $adds))) (let $lst (cons (goal $kb $prms $ccl) $tail) (superpose $lst))))
     )
    ))
-
-!(compileQuery (: prf (And A B C) (STV 0.9 0.9)))
