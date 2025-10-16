@@ -5,13 +5,16 @@
 (= (seff ($idx $atom $vars) $elem) (let $elem (exists $idx $vars) ((+ 1 $idx) $atom $vars)))
 
 (= (skolemize $expra $exprb)
-   (let* (($avars (fold-nested $expra () collectvars))
-          ($bvars (fold-nested $exprb () collectvars))
-          ($onlyb (subtract == $bvars $avars))
-          (($_ $res $avars) (sealed $onlyb (fold-nested $onlyb (0 $exprb $avars) seff)))
-         )
-    $res
-   )
+   (if (or (is-var $exprb) (is-var $expra))
+     $exprb
+     (let* (($avars (fold-nested $expra () collectvars))
+            ($bvars (fold-nested $exprb () collectvars))
+            ($onlyb (subtract == $bvars $avars))
+            (($_ $res $avars) (sealed $onlyb (fold-nested $onlyb (0 $exprb $avars) seff)))
+           )
+      $res
+     )
+    )
 )
 
 (= (addidx $expr $idx)
@@ -122,8 +125,8 @@
             (post (superpose ((((: $prfa $a $atv) (CPU mp-formula ($itv $atv) $btv))
                                 |-
                                 ((: ($prf $prfa) $nb $btv)))
-                               (out (: ($prf $prfa) $nb $btv))
-                               (in (: $prfa $a $atv))
+                               (if (is-var $nb) Empty (out (: ($prf $prfa) $nb $btv)))
+                               (if (is-var $a) Empty (in (: $prfa $a $atv)))
 
                                (((: $prfsb (substitute $b) $btv1)
                                  (: $prfb $b $btv2)
@@ -134,8 +137,8 @@
                                 )
                                 |-
                                 ((: ((inverted $prf $pa $prfsb) $prfb) $na $natv)))
-                               (out (: ((inverted $prf $pa $pb1) $pb2) $na $natv))
-                               (in (: $pb2 $b $btv2))
+                               (if (is-var $na) Empty (out (: ((inverted $prf $pa $pb1) $pb2) $na $natv)))
+                               (if (is-var $b) Empty (in (: $pb2 $b $btv2)))
                              ))))
             (post (superpose ( (() |- ($stmt))
                   (out $stmt))))
@@ -201,3 +204,5 @@
       ( ( ($prms |- ($ccl)) $adds) (let $tail (collapse (mm2stmt $kb (superpose $adds))) (let $lst (cons (goal $kb $prms $ccl) $tail) (superpose $lst))))
     )
    ))
+
+!(mm2compile kb (: extract_any_from_and (Implication (And $item $others) $item) (STV 1.0 1.0)))

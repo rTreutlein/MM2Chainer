@@ -68,7 +68,7 @@ class MorkHandler:
             for a in atoms:
                 f.write(a)
                 f.write("\n")
-            f.write(a.replace("goal", "pgoal"))
+            f.write(atoms[0].replace("goal", "pgoal"))
 
         p_arg = convert_sexpr(atoms[0], True).replace("goal", "ev")
         t_arg = convert_sexpr(atoms[0], False).replace("goal", "ev")
@@ -81,7 +81,7 @@ class MorkHandler:
             "-o", self.out_file,
             "-p", p_arg,
             "-t", t_arg,
-            "--timeout", "10"
+            "--timeout", "3"
         ]
         if log:
             print(atoms)
@@ -98,9 +98,14 @@ if __name__ == '__main__':
     handler = MorkHandler()
 
     print("Test")
-    print(handler.add_atom("(: a A (STV 1.0 1.0))"))
-    print(handler.add_atom("(: a_b (Implication A B) (STV 1.0 1.0))"))
-    print(handler.add_atom("(: b_a (Implication B A) (STV 1.0 1.0))"))
-    print(handler.add_atom("(: b_a (Implication (And B X) C) (STV 1.0 1.0))"))
+    #print(handler.add_atom("(: a A (STV 1.0 1.0))"))
+    #print(handler.add_atom("(: a_b (Implication A B) (STV 1.0 1.0))"))
+    #print(handler.add_atom("(: b_a (Implication B A) (STV 1.0 1.0))"))
+    #print(handler.add_atom("(: b_a (Implication (And B X) C) (STV 1.0 1.0))"))
 
-    print(handler.query("(: $prf C $tv)"))
+    #print(handler.query("(: $prf C $tv)"))
+
+
+    print(handler.add_atom("(: bob_likes_hot_chocolate (Likes bob hot_chocolate) (STV 1.0 1.0))"))
+    print(handler.add_atom("(: likes_to_has_attribute (Implication (Likes bob $attr) (And (HasAttribute chocolate $attr) (Likes bob $attr))) (STV 1.0 1.0))"))
+    print(handler.query("(: $chocolate_attribute_prf (And (HasAttribute chocolate $attr) (Likes bob $attr)) $tv)"))
