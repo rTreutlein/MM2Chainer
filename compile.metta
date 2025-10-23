@@ -7,8 +7,8 @@
 (= (skolemize $expra $exprb)
    (if (or (is-var $exprb) (is-var $expra))
      $exprb
-     (let* (($avars (unique (fold-nested $expra () collectvars)))
-            ($bvars (unique (fold-nested $exprb () collectvars)))
+     (let* (($avars (list-to-set (fold-nested $expra () collectvars)))
+            ($bvars (list-to-set (fold-nested $exprb () collectvars)))
             ($onlyb (subtract == $bvars $avars))
             (($_ $res $avars) (sealed $onlyb (fold-nested $onlyb (0 $exprb $avars) seff)))
            )
@@ -17,7 +17,8 @@
     )
 )
 
-!(skolemize (Agent $e $y) ((Agent $e $x) (Similarity $x $y)))
+;!(skolemize (Agent $e $y) ((Agent $e $x) (Similarity $x $y)))
+!(skolemize (PlayedTennis $x) (PlayedTennis $x $t))
 
 (= (addidx $expr $idx)
     (let ($head $tail) (decons $expr)
@@ -130,17 +131,17 @@
                                (if (is-var $nb) Empty (out (: ($prf $prfa) $nb $btv)))
                                (if (is-var $a) Empty (in (: $prfa $a $atv)))
 
-                               ;(((: $prfsb (substitute $b) $btv1)
-                               ;  (: $prfb $b $btv2)
-                               ;  (CPU stv< ($btv1 $btv2) True)
-                               ;  (: $pa (substitute $na) $atv)
-                               ;  (CPU inversion-formula ($atv $btv1 $itv) $nitv)
-                               ;  (CPU mp-formula ($btv2 $nitv) $natv)
-                               ; )
-                               ; |-
-                               ; ((: ((inverted $prf $pa $prfsb) $prfb) $na $natv)))
-                               ;(if (is-var $na) Empty (out (: ((inverted $prf $pa $pb1) $pb2) $na $natv)))
-                               ;(if (is-var $b) Empty (in (: $pb2 $b $btv2)))
+                               (((: $prfsb (substitute $b) $btv1)
+                                 (: $prfb $b $btv2)
+                                 (CPU stv< ($btv1 $btv2) True)
+                                 (: $pa (substitute $na) $atv)
+                                 (CPU inversion-formula ($atv $btv1 $itv) $nitv)
+                                 (CPU mp-formula ($btv2 $nitv) $natv)
+                                )
+                                |-
+                                ((: ((inverted $prf $pa $prfsb) $prfb) $na $natv)))
+                               (if (is-var $na) Empty (out (: ((inverted $prf $pa $pb1) $pb2) $na $natv)))
+                               (if (is-var $b) Empty (in (: $pb2 $b $btv2)))
                              ))))
             (post (superpose ( (() |- ($stmt))
                   (out $stmt))))
@@ -206,11 +207,3 @@
       ( ( ($prms |- ($ccl)) $adds) (let $tail (collapse (mm2stmt $kb (superpose $adds))) (let $lst (cons (goal $kb $prms $ccl) $tail) (superpose $lst))))
     )
    ))
-
-
-;!(mm2compile kb (: ab_c (Implication (And a b) c) (STV 0.9 0.8)))
-
-;!(skolemize ((Agent $e $x) (Similarity $x $y)) (Agent $e $y))
-;!(skolemize (Agent $e $y) ((Agent $e $x) (Similarity $x $y)))
-
-;!(mm2compile kb (: similarity_substitutes_agent (Implication (And (Agent $e $x) (Similarity $x $y)) (Agent $e $y)) (STV 0.9 0.8)))
