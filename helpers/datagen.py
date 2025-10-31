@@ -175,7 +175,9 @@ def main():
     for idx, (t, s, c) in enumerate(animal_to_subtype_rules, 1):
         rule_name = f"rule-animal-{idx:02d}"
         expr = f"(Implication (Animal $x) ({t} $x))"
+        expr2 = f"(Implication ({t} $x) (Animal $x))"
         print(f"(: {rule_name} {expr} (STV {s:.2f} {c:.2f}))")
+        print(f"(: {rule_name}_inverse {expr} (STV 1.0 1.0))")
 
     print()
     print("; ---------------------")

@@ -96,24 +96,33 @@
 
 (= (updatePremises $premises) (map-flat (map-flat $premises uPmapf1) uPmapf2))
 
-(= (post ($premises |- $conclusions))
+(= (postImpGuard $relation) (== $relation Implication))
+(= (postQueryImpGuard $relation) (and (not (is-var $relation)) (== $relation Implication)))
+
+(= (postNotGuard $relation) (== $relation Not))
+(= (postQueryNotGuard $relation) (and (== $relation Not) (not (is-var $relation))))
+
+(= (postCore $premises $conclusions $impGuard $notGuard $actionB $actionA)
   (let $npremises (updatePremises $premises)
   (case $conclusions
     ((((: $prf ($relation $a $b) $tv))
-       (if (== $relation Implication)
+       (if ($impGuard $relation)
          (superpose ( (post ((concat $npremises ((: $prfa $a $atv) (CPU mp-formula ($atv $tv) $btv))) |- ((: ($prf $prfa) $b $btv))))
-                      (out $b)
-                      (in $a)
+                      ($actionB $b)
+                      ($actionA $a)
                     ))
          ($npremises |- $conclusions))
      )
      (((: $prf ($relation $a) (STV $strength $confidence)))
-       (if (== $relation Not)
+       (if ($notGuard $relation)
           (post ($npremises |- ((: $prf $a (STV (- 1.0 $strength) $confidence)))))
           ($npremises |- $conclusions))
      )
      ($conclusions
       ($npremises |- $conclusions))))))
+
+(= (post ($premises |- $conclusions))
+  (postCore $premises $conclusions postImpGuard postNotGuard out in))
 
 (= (compile $stmt)
     (let (: $prf $Type $tv) $stmt
@@ -154,23 +163,7 @@
 
 (= (postQuery Empty) Empty)
 (= (postQuery ($premises |- $conclusions))
-  (let $npremises (updatePremises $premises)
-  (case $conclusions
-    ((((: $prf ($relation $a $b) $tv))
-       (if (and (not (is-var $relation)) (== $relation Implication))
-         (superpose ( (post ((concat $npremises ((: $prfa $a $atv) (CPU mp-formula ($atv $tv) $btv))) |- ((: ($prf $prfa) $b $btv))))
-                      (in $b)
-                      (out $a)
-                    ))
-         ($npremises |- $conclusions))
-     )
-     (((: $prf ($relation $a) (STV $strength $confidence)))
-       (if (and (== $relation Not) (not (is-var $relation)))
-          (post ($npremises |- ((: $prf $a (STV (- 1.0 $strength) $confidence)))))
-          ($npremises |- $conclusions))
-     )
-     ($conclusions
-      ($npremises |- $conclusions))))))
+  (postCore $premises $conclusions postQueryImpGuard postQueryNotGuard in out))
 
 (= (compileQuery $stmt)
  (let (: $prf $Type $tv) $stmt
@@ -207,3 +200,5 @@
       ( ( ($prms |- ($ccl)) $adds) (let $tail (collapse (mm2stmt $kb (superpose $adds))) (let $lst (cons (goal $kb $prms $ccl) $tail) (superpose $lst))))
     )
    ))
+
+!(mm2compile kb (: prf (Implication (Implication A B) C) (STV 1.0 1.0)))
