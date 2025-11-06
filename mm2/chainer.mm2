@@ -49,7 +49,7 @@
 
 ((step (6 finish))
     (, (ev $kb $ctx $ev) (pgoal $kb $ctx $ev) (exec $a $b $c))
-    (O (- (exec $a $b $c))))
+    (O (- (exec $a $b $c)) (+ (zev $kb $ctx $ev))))
 
 ;((step (6 revision))
 ; (, (ev (: $prf1 $Type $tv1)) (ev (: $prf2 $Type $tv2)))

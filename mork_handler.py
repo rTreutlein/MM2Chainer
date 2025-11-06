@@ -28,7 +28,7 @@ class MorkHandler:
         if not LOADEDLIB:
             with LOADED_LOCK:
                 if not LOADEDLIB:
-                    src_path = os.path.join(os.path.dirname(__file__),"compile.metta")
+                    src_path = os.path.join(os.path.dirname(__file__),"metta/compile.metta")
                     print(src_path)
                     self.handler.load_metta_file(src_path)
                     LOADEDLIB = True
@@ -48,6 +48,9 @@ class MorkHandler:
         atoms = self.handler.process_metta_string(f"!(mm2compile {self.kb} {atom})")
         with open(self.data_file, "a") as f:
             for a in atoms:
+                if log:
+                    print(a)
+                    print("\n")
                 f.write(a)
                 f.write("\n")
         return atoms
@@ -66,6 +69,9 @@ class MorkHandler:
         atoms = self.handler.process_metta_string(f"!(mm2compileQuery {self.kb} {atom})")
         with open(self.data_file, "a") as f:
             for a in atoms:
+                if log:
+                    print(a)
+                    print("\n")
                 f.write(a)
                 f.write("\n")
             f.write(atoms[0].replace("goal", "pgoal"))
@@ -101,4 +107,4 @@ if __name__ == '__main__':
     print(handler.add_atom("(: a A (STV 1.0 1.0))"))
     print(handler.add_atom("(: b_a (Implication B A) (STV 1.0 1.0))"))
 
-    print(handler.query("(: $prf B $tv)"))
+    print(handler.query("(: $prf A $tv)"))
