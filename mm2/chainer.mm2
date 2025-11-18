@@ -1,63 +1,31 @@
 ;Chainer
 ((step (0 base))
-  (, (goal $kb $ctx $g) ($kb $g))
-  (, (ev $kb $ctx $g) )) 
+  (, (goal $g) $g)
+  (, (ev $g) )) 
 
 ((step (1 cpu))
-  (, (goal $kb $ctx (CPU $fun $args $res)) (fun ($fun $args $body $res)))
-  (, (exec 0 $body (, (ev $kb $ctx (CPU $fun $args $res)) ) ) ) )
+  (, (goal (CPU $fun $args $res)) (fun ($fun $args $body $res)))
+  (, (exec 0 $body (, (ev (CPU $fun $args $res)) ) ) ) )
 
 ((step (1 cpu))
-  (, (goal $kb $ctx (CPU $fun $args $res)) ($fun $args $res))
-  (, (ev $kb $ctx (CPU $fun $args $res)) ) )
+  (, (goal (CPU $fun $args $res)) ($fun $args $res))
+  (, (ev (CPU $fun $args $res)) ) )
 
 ((step (2 abs1))
-  (, (goal $kb $ctx $ccls) ($kb (($arg $dep) |- $ccls)) )
-  (, (ev $kb $ctx (($arg $dep) |- $ccls)) (goal $kb $ctx $arg) ))
-
-((step (3 ctx))
-  (, (goal $kb ($g) $g) )
-  (, (ev $kb ($g) $g) ))
-
-((step (3 ctx))
-  (, (goal $kb ($arg $g) $g) )
-  (, (ev $kb ($arg $g) $g) ))
-
-((step (3 ctx))
-  (, (goal $kb ($g $arg) $g) )
-  (, (ev $kb ($g $arg) $g) ))
-
-((step (3 ctx))
-  (, (goal $kb ($arg1 $arg2 $g) $g) )
-  (, (ev $kb ($arg1 $arg2 $g) $g) ))
-
-((step (3 ctx))
-  (, (goal $kb ($g $arg1 $arg2) $g) )
-  (, (ev $kb ($g $arg1 $arg2) $g) ))
-
-((step (3 ctx))
-  (, (goal $kb ($arg1 $g $arg2) $g) )
-  (, (ev $kb ($arg1 $g $arg2) $g) ))
+  (, (goal $ccls) (rules (($arg $dep) |- $ccls)) )
+  (, (ev (($arg $dep) |- $ccls)) (goal $arg) ))
 
 ((step (4 app1_0))
-  (, (ev $kb $ctx (($arg Nil) |- $r)) (ev $kb $ctx $arg))
-  (, (ev $kb $ctx $r) ))
+  (, (ev (($arg Nil) |- $r)) (ev $arg))
+  (, (ev $r) ))
 
 ((step (5 app1_1))
-  (, (ev $kb $ctx (($arg1 ($deparg1 $dep)) |- $r)) (ev $kb $ctx $arg1))
-  (, (ev $kb $ctx (($deparg1 $dep) |- $r)) (goal $kb $ctx $deparg1) ))
+  (, (ev (($arg1 ($deparg1 $dep)) |- $r)) (ev $arg1))
+  (, (ev (($deparg1 $dep) |- $r)) (goal $deparg1) ))
 
 ((step (6 finish))
-    (, (ev $kb $ctx $ev) (pgoal $kb $ctx $ev) (exec $a $b $c))
-    (O (- (exec $a $b $c)) (+ (zev $kb $ctx $ev))))
-
-;((step (6 revision))
-; (, (ev (: $prf1 $Type $tv1)) (ev (: $prf2 $Type $tv2)))
-; (O (- (ev (: $prf1 $Type $tv1))) (- (ev (: $prf2 $Type $tv2))) (+ (ev (: (revision $prf1 $prf2) $Type (merge $tv1 $tv2))))  ))
-;
-;((step (7 clean))
-; (, (ev (: (revision $prf $prf) $Type $tv)))
-; (O (- (ev (: (revision $prf $prf) $Type $tv)))))
+    (, (ev $ev) (pgoal $ev) (exec $a $b $c))
+    (O (- (exec $a $b $c)) (+ (zev $ev))))
 
 (exec zealous
         (, ((step $x) $p0 $t0)
@@ -70,3 +38,4 @@
 (fun (mp-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (min ($ci $ca) $cb)) (STV $sb $cb)))
 (fun (and-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (min ($ci $ca) $cb)) (STV $sb $cb)))
 (fun (or-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (max ($ci $ca) $cb)) (STV $sb $cb)))
+(fun (not-formula ((STV $s $c)) (, (not ($s) $ns) ) (STV $ns $c)))
