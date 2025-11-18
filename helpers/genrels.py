@@ -30,6 +30,10 @@ def generate_expressions():
         result = round(math.sqrt(a), 1)
         if result in values:
             results.append(f"(sqrt ({a}) {result})")
+
+        result = 1 - a
+        if result in values:
+            results.append(f"(not ({a}) {result})")
     
     # Add < relations (binary predicate, only when true)
     for a in values:
@@ -41,7 +45,7 @@ def generate_expressions():
     for a in values:
         for b in values:
             if a <= b:
-                results.append(f"((<= ({a} {b}) 1.0)")
+                results.append(f"(<= ({a} {b}) 1.0)")
     
     # Write to file
     with open('mathrels.mm2', 'w') as f:
