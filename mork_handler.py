@@ -55,7 +55,7 @@ class MorkHandler:
                 f.write("\n")
         return atoms
 
-    def query(self, atom: str, log: bool = False, timeout: float = 300.0) -> List[str]:
+    def query(self, atom: str, log: bool = False, timeout: int = 3) -> List[str]:
         """Query the knowledge base and return results
         
         Args:
@@ -87,7 +87,7 @@ class MorkHandler:
             "-o", self.out_file,
             "-p", p_arg,
             "-t", t_arg,
-            "--timeout", "3"
+            "--timeout", str(int(timeout))
         ]
         if log:
             print(atoms)
