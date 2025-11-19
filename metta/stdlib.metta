@@ -1,11 +1,9 @@
-(= (traceid $x) (let $reduced $x (trace! $reduced $reduced)))
+(= (traceid $x) (trace! $x $x))
 
 (= (map-flat $f ()) ())
 (= (map-flat $f (cons $x $xs)) (cons ($f $x) (map-flat $f $xs)))
 
 !(test (map-flat (+ 1) (1 2 3)) (2 3 4))
-
-(= (traceid $in) (trace! $in $in))
 
 (= (map-nested $f ()) ())
 (= (map-nested $f (cons $x $xs))
@@ -35,6 +33,9 @@
 
 !(test (fold-nested + 0 (1 (2 3))) 6)
 
+(= (equ $a $b) (= $a $b))
+(= (eqs $a $b) (== $a $b))
+
 ;Intersection
 (= (/?\ $pred () $b) ())
 (= (/?\ $pred (cons $a $as) $bs)
@@ -42,11 +43,13 @@
          (cons $a (/?\ $pred $as $bs))
          (/?\ $pred $as $bs)))
 
-(= (/=\ $a $b) (/?\ = $a $b))
-(= (/==\ $a $b) (/?\ == $a $b))
+(= (/=\ $a $b) (/?\ equ $a $b))
+(= (/==\ $a $b) (/?\ eqs $a $b))
 (= (/=@=\ $a $b) (/?\ =alpha $a $b))
 
+!(test (/=\ (1 2 $a) (2 3 4)) (2 2))
 !(test (/==\ (1 2 3) (2 3 4)) (2 3))
+!(test (/=@=\ (1 2 $a) (2 $a 4)) (2 $a))
 
 ;Subtraction
 (= (\? $pred () $bs) ())
@@ -55,11 +58,13 @@
     (\? $pred $as $bs)
     (cons $a (\? $pred $as $bs))))
 
-(= (\= $a $b) (\? = $a $b))
-(= (\== $a $b) (\? == $a $b))
+(= (\= $a $b) (\? equ $a $b))
+(= (\== $a $b) (\? eqs $a $b))
 (= (\=a $a $b) (\? =alpha $a $b))
 
+!(test (\= (1 2 3) ($a 3 4)) (2))
 !(test (\== (1 2 3) (2 3 4)) (1))
+!(test (\=a (1 2 $a) (2 $a 4)) (1))
 
 (= (@ $a $b) (let $a $b $a))
 
@@ -84,3 +89,7 @@
 
 !(test (let (mylast $x) (1 2 3) $x) 3)
 !(test (let (init $xs) (1 2 3) $xs) (1 2))
+
+(= (rcons $xs $x) (union-atom $xs ($x)))
+
+!(test (let (rcons $xs $x) (1 2 3) ($xs $x)) ((1 2) 3))

@@ -46,6 +46,10 @@ class MorkHandler:
 
     def add_atom(self, atom: str, log:bool=False, timeout: float = 240) -> str:
         atoms = self.handler.process_metta_string(f"!(mm2compile {self.kb} {atom})")
+        if len(atoms) == 0:
+            if log:
+                print(f"No atoms found for {atom}")
+            return
         with open(self.data_file, "a") as f:
             for a in atoms:
                 if log:

@@ -23,6 +23,7 @@
 
 !(test (skolemize (PlayedTennis $x) (PlayedTennis $x $t)) (PlayedTennis $x (exists 0 ($x))))
 
+
 (= (addidx (cons $head $tail) $idx)
       (cons ($head $idx) (addidx $tail (+ $idx 1))))
 (= (addidx () $idx) ())
@@ -195,9 +196,8 @@
    (case (compileQuery $kb $stmt) 
    (
      ( ( (() |- ($ccl)) $adds)
-          (let trace (trace! $adds trace)
           (let $tail (map-flat mm2stmt $adds)
-          (let $lst (cons (goal $ccl) $tail) (superpose $lst)))))
+          (let $lst (cons (goal $ccl) $tail) (superpose $lst))))
      ( ( (((: $kb $prf $type $tv)) |- ((: $kb $prf1 $type1 $tv1))) $adds) 
           (let $vars (extract-vars $type)
           (let $mvars (if (== $vars ()) Nil $vars)
@@ -217,11 +217,14 @@
         (rules (((: $kb3 $_75042 (And C D) $_75072) ((CPU And-projection ($_75072) $_75114) Nil)) |- (: $kb3 (proj 1 $_75042) D $_75114)))
         (rules (((: $kb4 $_74826 A $_74838) ((: $kb4 $_74862 B $_74874) ((CPU Or-formula ($_74838 $_74874) $_74922) Nil))) |- (: $kb4 (conjunction $_74826 $_74862) (Or A B) $_74922)))))
 
-
 !(test (mm2compile kb (: prf (Implication (Not A) B) (STV 1.0 1.0))) 
        (rules (((: $_24104 $_24110 A $_24828) ((CPU not-formula ($_24828) $_24122) ((CPU mp-formula ((STV 1.0 1.0) $_24122) $_24152) Nil))) |- (: $_24104 (prf $_24110) B $_24152))))
 
 !(test (mm2compileQuery kb (: $prf B $tv)) (goal (: kb $_14174 B $_14186)))
 
-!(test (mm2compileQuery kb (: $q_whom_did_she_see (And (See $e) (Agent $e she_2) (Person she_2) (Patient $e $whom) (Person $whom) (Tense $e past_tense)) $tv)) 
-       (goal (: kb $_15452 (And (See $_15482) (Agent $_15482 she_2) (Person she_2) (Patient $_15482 $_15548) (Person $_15548) (Tense $_15482 past_tense)) $_15596)))
+!(test (collapse (mm2compileQuery kb (: $q_whom_did_she_see (And (See $e) (Agent $e she_2) (Person she_2) (Patient $e $whom) (Person $whom) (Tense $e past_tense)) $tv)))
+       ((goal (: kb $_25686 (And (See $_25716) (Agent $_25716 she_2) (Person she_2) (Patient $_25716 $_25782) (Person $_25782) (Tense $_25716 past_tense)) $_25830))
+        (rules (((: kb $_24966 (See $_24984) $_24990) ((: kb $_25020 (Tense $_24984 past_tense) $_25050) ((CPU And-formula ($_24990 $_25050) $_25098) ((: kb $_25128 (Person $_25146) $_25152) ((CPU And-formula ($_25098 $_25152) $_25200) ((: kb $_25230 (Patient $_24984 $_25146) $_25260) ((CPU And-formula ($_25200 $_25260) $_25308) ((: kb $_25338 (Person she_2) $_25362) ((CPU And-formula ($_25308 $_25362) $_25410) ((: kb $_25440 (Agent $_24984 she_2) $_25470) ((CPU And-formula ($_25410 $_25470) $_25518) Nil))))))))))) |- (: kb (conjunction $_24966 $_25020 $_25128 $_25230 $_25338 $_25440) (And (See $_24984) (Tense $_24984 past_tense) (Person $_25146) (Patient $_24984 $_25146) (Person she_2) (Agent $_24984 she_2)) $_25518)))))
+
+!(test (mm2compile kb (: boy_implies_person (Implication (Boy $x) (Person $x)) (STV 0.9 0.9)))
+       (rules (((: $_38502 $_38508 (Boy $_38526) $_38532) ((CPU mp-formula ((STV 0.9 0.9) $_38532) $_38610) Nil)) |- (: $_38502 (boy_implies_person $_38508) (Person $_38526) $_38610))))
