@@ -90,3 +90,18 @@
 (= (rcons $xs $x) (union-atom $xs ($x)))
 
 !(test (let (rcons $xs $x) (1 2 3) ($xs $x)) ((1 2) 3))
+
+(= (prog1 (cons $x $xs)) $x)
+
+!(test (prog1 (+ 1 1) (+ 2 2)) 2)
+
+(= (progn (rcons $xs $x)) $x)
+
+!(test (progn (+ 1 1) (+ 2 2)) 4)
+
+(= (clear-space $space) (let $as (get-atoms $space) (prog1 (remove-atom $space $as) (cut))))
+(= (clear-space $space) false)
+
+!(test (clear-space space) false)
+!(add-atom space (: a b c))
+!(test (clear-space space) true)
