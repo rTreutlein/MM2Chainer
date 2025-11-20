@@ -5,10 +5,12 @@
 (= (nextctx) (let $n (get-state ctxid) (let $_ (change-state! ctxid (+ $n 1)) $n)))
 
 (= (extract-vars $expr)
-  (if (is-expr $expr)
-    (let $collect-vars (|-> ($accum $arg) (if (is-var $arg) (cons $arg $accum) $accum))
-    (fold-nested $collect-vars () $expr))
-   ()))
+  (if (is-var $expr)
+    ($expr)
+    (if (is-expr $expr)
+      (let $collect-vars (|-> ($accum $arg) (if (is-var $arg) (cons $arg $accum) $accum))
+           (fold-nested $collect-vars () $expr))
+      ())))
 
 (= (skolemize $expra $exprb)
    (if (or (is-var $exprb) (is-var $expra))
@@ -90,8 +92,10 @@
        $elem))
 
 (= (uPmapf2 $elem $accum)
-   (if (= $elem (: $kb $prfa ($rel $a) $tv))
-       (if (and (not (is-var $rel)) (== $rel Not))
+   (if (and (= $elem (: $kb $prfa $type $tv)) (not (is-var $type)))
+       (if (and (= $type ($rel $a))
+           (and (not (is-var $rel)) 
+                (== $rel Not)))
            (cons (: $kb $prfa $a $tv_a) (cons (CPU Not-formula ($tv_a) $tv) $accum))
            (cons $elem $accum))
        (cons $elem $accum)))
@@ -238,3 +242,7 @@
 !(test (mm2compile kb (: a_b_c (Implication (Implication A B) C) (STV 1.0 1.0)))
        ((rules (((: ($_40530 1 Nil) $_40548 B $_40560) ((CPU Mp-formula ((STV 1.0 1.0) $_40560) $_40638) Nil)) |- (: $_40530 (a_b_c $_40548) C $_40638)))
         (: ($_40404 1 Nil) (ctx proof 1) A (STV 1.0 1.0))))
+
+!(test (mm2compile kb (: at_time_transfer (Implication (And (AtTime $what $when) (Implication $what $else)) (AtTime $else $when)) (STV 1.0 1.0)))
+       ((rules (((: $_44010 $_44016 (And (AtTime $_44046 $_44052) (Implication $_44046 $_44076)) $_44082) ((CPU Mp-formula ((STV 1.0 1.0) $_44082) $_44160) Nil)) |- (: $_44010 (at_time_transfer $_44016) (AtTime $_44076 $_44052) $_44160)))
+        (rules (((: $_43716 $_43722 (AtTime $_43740 $_43746) $_43752) ((: ($_43716 2 ($_43740)) $_43806 $_43812 $_43818) ((CPU And-formula ($_43752 $_43818) $_43866) Nil))) |- (: $_43716 (conjunction $_43722 $_43806) (And (AtTime $_43740 $_43746) (Implication $_43740 $_43812)) $_43866))) (: ($_43590 2 ($_43608)) (ctx proof 2) $_43608 (STV 1.0 1.0))))
