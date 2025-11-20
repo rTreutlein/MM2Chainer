@@ -33,9 +33,6 @@
 
 !(test (fold-nested + 0 (1 (2 3))) 6)
 
-(= (equ $a $b) (= $a $b))
-(= (eqs $a $b) (== $a $b))
-
 ;Intersection
 (= (/?\ $pred () $b) ())
 (= (/?\ $pred (cons $a $as) $bs)
@@ -43,13 +40,13 @@
          (cons $a (/?\ $pred $as $bs))
          (/?\ $pred $as $bs)))
 
-(= (/=\ $a $b) (/?\ equ $a $b))
-(= (/==\ $a $b) (/?\ eqs $a $b))
-(= (/=@=\ $a $b) (/?\ =alpha $a $b))
+(= (/=\ $a $b) (/?\ = $a $b))
+(= (/==\ $a $b) (/?\ == $a $b))
+(= (/=a\ $a $b) (/?\ =alpha $a $b))
 
 !(test (/=\ (1 2 $a) (2 3 4)) (2 2))
 !(test (/==\ (1 2 3) (2 3 4)) (2 3))
-!(test (/=@=\ (1 2 $a) (2 $a 4)) (2 $a))
+!(test (/=a\ (1 2 $a) (2 $a 4)) (2 $a))
 
 ;Subtraction
 (= (\? $pred () $bs) ())
@@ -58,8 +55,8 @@
     (\? $pred $as $bs)
     (cons $a (\? $pred $as $bs))))
 
-(= (\= $a $b) (\? equ $a $b))
-(= (\== $a $b) (\? eqs $a $b))
+(= (\= $a $b) (\? = $a $b))
+(= (\== $a $b) (\? == $a $b))
 (= (\=a $a $b) (\? =alpha $a $b))
 
 !(test (\= (1 2 3) ($a 3 4)) (2))
