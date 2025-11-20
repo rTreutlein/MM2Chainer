@@ -82,9 +82,10 @@
    (if (= $elem (: $kb $prf ($rel $a $b) $tv))
        (if (and (== $rel Implication) (not (is-var $rel)))
            (let $vars (extract-vars $a)
+           (let $mvars (if (== $vars ()) Nil $vars)
            (let $ctx  (nextctx)
-           (let $_ (add-atom ctx (($kb $ctx $vars) $a))
-                  (: ($kb $ctx $vars) $prf $b $tv))))
+           (let $_ (add-atom ctx (: ($kb $ctx $mvars) (ctx proof $ctx) $a (STV 1.0 1.0)))
+                  (: ($kb $ctx $mvars) $prf $b $tv)))))
            $elem)
        $elem))
 
@@ -184,7 +185,8 @@
    ($head (nested $tail)))
 
 (= (mm2compile $kb $stmt)
-  (mm2stmt (compile $kb $stmt)))
+  (let $_ (clear-space ctx)
+        (superpose ((mm2stmt (compile $kb $stmt)) (get-atoms ctx)))))
 
 (= (mm2stmt $stmt)
  (case $stmt
@@ -232,3 +234,7 @@
 !(test (collapse (mm2compileQuery kb (: $prf (And A B C) $tv)))
        ((goal (: kb $_37162 (And A B C) $_37198))
         (rules (((: kb $_37246 A $_37258) ((: kb $_37288 B $_37300) ((CPU And-formula ($_37258 $_37300) $_37348) ((: kb $_37378 C $_37390) ((CPU And-formula ($_37348 $_37390) $_37438) Nil))))) |- (: kb (conjunction $_37246 $_37288 $_37378) (And A B C) $_37438)))))
+
+!(test (mm2compile kb (: a_b_c (Implication (Implication A B) C) (STV 1.0 1.0)))
+       ((rules (((: ($_40530 1 Nil) $_40548 B $_40560) ((CPU Mp-formula ((STV 1.0 1.0) $_40560) $_40638) Nil)) |- (: $_40530 (a_b_c $_40548) C $_40638)))
+        (: ($_40404 1 Nil) (ctx proof 1) A (STV 1.0 1.0))))
