@@ -52,15 +52,15 @@
 !(test (let (head (tv $tv)) ((CPU formula args tv)) $tv) tv)
 
 (= (in_fold $formula
-            (: $kb $prfelem $elem $tve)
-            ((@ $premises (head (tv $tv))) (: $kb $cclprf $ccltype $ccltv)))
+            ((@ $premises (head (tv $tv))) (: $kb $cclprf $ccltype $ccltv))
+            (: $kb $prfelem $elem $tve))
          ((cons (CPU $formula ($tv $tve) $ntv) (cons (: $kb $prfelem $elem $tve) $premises))
           (: $kb (cons $prfelem $cclprf) (cons $elem $ccltype) $ntv)))
 
 (= (inTemplate $kb $formula $head $tail)
  (let* (((cons (@ $fst (: $kb $fstprf $fstelem $fsttv)) $rst) (map-flat (in_map $kb) $tail))
         ($init (($fst) (: $kb ($fstprf) ($fstelem) $fsttv)))
-        (($resNNprms (: $kb $cclprf $ccltype $ccltv)) (foldr-flat (in_fold $formula) $init $rst))
+        (($resNNprms (: $kb $cclprf $ccltype $ccltv)) (fold-flat (in_fold $formula) $init $rst))
         (($rcclprf $rccltype) ((reverse $cclprf) (reverse $ccltype)))
        )
      ((reverse $resNNprms) |- ((: $kb (cons conjunction $rcclprf) (cons $head $rccltype) $ccltv)))))
@@ -91,7 +91,7 @@
 (= (uPmapf2 $elem $accum)
    (if (= $elem (: $kb $prfa ($rel $a) $tv))
        (if (and (not (is-var $rel)) (== $rel Not))
-           (cons (: $kb $prfa $a $tv_a) (cons (CPU not-formula ($tv_a) $tv) $accum))
+           (cons (: $kb $prfa $a $tv_a) (cons (CPU Not-formula ($tv_a) $tv) $accum))
            (cons $elem $accum))
        (cons $elem $accum)))
 
@@ -99,7 +99,7 @@
 
 !(test (updatePremises ((: $kb $prf (Implication (Dog $x) (Animal $x)) $tv))) ((: ($_8644 0 ($_8680)) $_8650 (Animal $_8680) $_8704)))
 
-!(test (updatePremises ((: $kb $prf (Not (Dog $x)) $tv))) ((: $_9054 $_9060 (Dog $_9090) $tv) (CPU not-formula ($tv) $ntv)))
+!(test (updatePremises ((: $kb $prf (Not (Dog $x)) $tv))) ((: $_9054 $_9060 (Dog $_9090) $tv) (CPU Not-formula ($tv) $ntv)))
 
 (= (postImpGuard $relation) (== $relation Implication))
 (= (postQueryImpGuard $relation) (and (not (is-var $relation)) (== $relation Implication)))
@@ -112,7 +112,7 @@
   (case $conclusions
     ((((: $prf ($relation $a $b) $tv))
        (if ($impGuard $relation)
-         (superpose ( (post ((union-atom $npremises ((: $prfa $a $atv) (CPU mp-formula ($atv $tv) $btv))) |- ((: ($prf $prfa) $b $btv))))
+         (superpose ( (post ((union-atom $npremises ((: $prfa $a $atv) (CPU Mp-formula ($atv $tv) $btv))) |- ((: ($prf $prfa) $b $btv))))
                       ($actionB $b)
                       ($actionA $a)
                     ))
@@ -141,7 +141,7 @@
             (let* ( ($nb (skolemize $a $b))
                     ($na (skolemize $b $a))
                   )
-            (post (superpose ((((: $kbr $prfa $a $atv) (CPU mp-formula ($itv $atv) $btv))
+            (post (superpose ((((: $kbr $prfa $a $atv) (CPU Mp-formula ($itv $atv) $btv))
                                 |-
                                 ((: $kbr ($prf $prfa) $nb $btv)))
                               (if (is-var $nb) (empty) (compile-outputs (: $kbr ($prf $prfa) $nb $btv)))
@@ -212,19 +212,23 @@
 !(test (mm2compile kb (: prf (Dog doggy) (STV 1.0 1.0))) (: kb prf (Dog doggy) (STV 1.0 1.0)))
 
 !(test (collapse (mm2compile kb (: prf (Implication (Or A B) (And C D)) (STV 1.0 1.0))))
-       ((rules (((: $kb1 $_75390 (Or A B) $_75420) ((CPU mp-formula ((STV 1.0 1.0) $_75420) $_75498) Nil)) |- (: $kb1 (prf $_75390) (And C D) $_75498)))
+       ((rules (((: $kb1 $_75390 (Or A B) $_75420) ((CPU Mp-formula ((STV 1.0 1.0) $_75420) $_75498) Nil)) |- (: $kb1 (prf $_75390) (And C D) $_75498)))
         (rules (((: $kb2 $_75216 (And C D) $_75246) ((CPU And-projection ($_75246) $_75288) Nil)) |- (: $kb2 (proj 0 $_75216) C $_75288)))
         (rules (((: $kb3 $_75042 (And C D) $_75072) ((CPU And-projection ($_75072) $_75114) Nil)) |- (: $kb3 (proj 1 $_75042) D $_75114)))
         (rules (((: $kb4 $_74826 A $_74838) ((: $kb4 $_74862 B $_74874) ((CPU Or-formula ($_74838 $_74874) $_74922) Nil))) |- (: $kb4 (conjunction $_74826 $_74862) (Or A B) $_74922)))))
 
 !(test (mm2compile kb (: prf (Implication (Not A) B) (STV 1.0 1.0))) 
-       (rules (((: $_24104 $_24110 A $_24828) ((CPU not-formula ($_24828) $_24122) ((CPU mp-formula ((STV 1.0 1.0) $_24122) $_24152) Nil))) |- (: $_24104 (prf $_24110) B $_24152))))
+       (rules (((: $_24104 $_24110 A $_24828) ((CPU Not-formula ($_24828) $_24122) ((CPU Mp-formula ((STV 1.0 1.0) $_24122) $_24152) Nil))) |- (: $_24104 (prf $_24110) B $_24152))))
 
 !(test (mm2compileQuery kb (: $prf B $tv)) (goal (: kb $_14174 B $_14186)))
 
 !(test (collapse (mm2compileQuery kb (: $q_whom_did_she_see (And (See $e) (Agent $e she_2) (Person she_2) (Patient $e $whom) (Person $whom) (Tense $e past_tense)) $tv)))
        ((goal (: kb $_25686 (And (See $_25716) (Agent $_25716 she_2) (Person she_2) (Patient $_25716 $_25782) (Person $_25782) (Tense $_25716 past_tense)) $_25830))
-        (rules (((: kb $_24966 (See $_24984) $_24990) ((: kb $_25020 (Tense $_24984 past_tense) $_25050) ((CPU And-formula ($_24990 $_25050) $_25098) ((: kb $_25128 (Person $_25146) $_25152) ((CPU And-formula ($_25098 $_25152) $_25200) ((: kb $_25230 (Patient $_24984 $_25146) $_25260) ((CPU And-formula ($_25200 $_25260) $_25308) ((: kb $_25338 (Person she_2) $_25362) ((CPU And-formula ($_25308 $_25362) $_25410) ((: kb $_25440 (Agent $_24984 she_2) $_25470) ((CPU And-formula ($_25410 $_25470) $_25518) Nil))))))))))) |- (: kb (conjunction $_24966 $_25020 $_25128 $_25230 $_25338 $_25440) (And (See $_24984) (Tense $_24984 past_tense) (Person $_25146) (Patient $_24984 $_25146) (Person she_2) (Agent $_24984 she_2)) $_25518)))))
+        (rules (((: kb $_35502 (See $_35520) $_35526) ((: kb $_35556 (Agent $_35520 she_2) $_35586) ((CPU And-formula ($_35526 $_35586) $_35634) ((: kb $_35664 (Person she_2) $_35688) ((CPU And-formula ($_35634 $_35688) $_35736) ((: kb $_35766 (Patient $_35520 $_35790) $_35796) ((CPU And-formula ($_35736 $_35796) $_35844) ((: kb $_35874 (Person $_35790) $_35898) ((CPU And-formula ($_35844 $_35898) $_35946) ((: kb $_35976 (Tense $_35520 past_tense) $_36006) ((CPU And-formula ($_35946 $_36006) $_36054) Nil))))))))))) |- (: kb (conjunction $_35502 $_35556 $_35664 $_35766 $_35874 $_35976) (And (See $_35520) (Agent $_35520 she_2) (Person she_2) (Patient $_35520 $_35790) (Person $_35790) (Tense $_35520 past_tense)) $_36054)))))
 
 !(test (mm2compile kb (: boy_implies_person (Implication (Boy $x) (Person $x)) (STV 0.9 0.9)))
-       (rules (((: $_38502 $_38508 (Boy $_38526) $_38532) ((CPU mp-formula ((STV 0.9 0.9) $_38532) $_38610) Nil)) |- (: $_38502 (boy_implies_person $_38508) (Person $_38526) $_38610))))
+       (rules (((: $_38502 $_38508 (Boy $_38526) $_38532) ((CPU Mp-formula ((STV 0.9 0.9) $_38532) $_38610) Nil)) |- (: $_38502 (boy_implies_person $_38508) (Person $_38526) $_38610))))
+
+!(test (collapse (mm2compileQuery kb (: $prf (And A B C) $tv)))
+       ((goal (: kb $_37162 (And A B C) $_37198))
+        (rules (((: kb $_37246 A $_37258) ((: kb $_37288 B $_37300) ((CPU And-formula ($_37258 $_37300) $_37348) ((: kb $_37378 C $_37390) ((CPU And-formula ($_37348 $_37390) $_37438) Nil))))) |- (: kb (conjunction $_37246 $_37288 $_37378) (And A B C) $_37438)))))
