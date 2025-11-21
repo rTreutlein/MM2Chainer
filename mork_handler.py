@@ -78,7 +78,6 @@ class MorkHandler:
                     print("\n")
                 f.write(a)
                 f.write("\n")
-            f.write(atoms[0].replace("goal", "pgoal"))
 
         p_arg = convert_sexpr(atoms[0], True).replace("goal", "ev")
         t_arg = convert_sexpr(atoms[0], False).replace("goal", "ev")

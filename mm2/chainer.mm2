@@ -23,10 +23,6 @@
   (, (ev (($arg1 ($deparg1 $dep)) |- $r)) (ev $arg1))
   (, (ev (($deparg1 $dep) |- $r)) (goal $deparg1) ))
 
-((step (6 finish))
-    (, (ev $ev) (pgoal $ev) (exec $a $b $c))
-    (O (- (exec $a $b $c)) (+ (zev $ev))))
-
 (exec zealous
         (, ((step $x) $p0 $t0)
            (exec zealous $p1 $t1) )
