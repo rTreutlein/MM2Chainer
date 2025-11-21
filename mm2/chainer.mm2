@@ -36,6 +36,11 @@
 
 ;Functions
 (fun (Mp-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (min ($ci $ca) $cb)) (STV $sb $cb)))
+
 (fun (And-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (min ($ci $ca) $cb)) (STV $sb $cb)))
+(And-projection ((STV $s $c)) (STV $s $c))
+
 (fun (Or-formula ((STV $si $ci) (STV $sa $ca)) (, (mul ($si $sa) $sb) (max ($ci $ca) $cb)) (STV $sb $cb)))
+(Or-projection ((STV $s $c)) (STV $s $c))
+
 (fun (Not-formula ((STV $s $c)) (, (not ($s) $ns) ) (STV $ns $c)))
